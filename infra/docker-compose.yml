@@ -8,9 +8,7 @@ services:
       - ../backend/foodgram/.env
 
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: azhele/foodgram
     restart: always
     command: gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000
     ports:
@@ -24,9 +22,7 @@ services:
       - ../backend/foodgram/.env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: azhele/foodgram_frontend
     volumes:
       - ../frontend/:/app/result_build/
 
