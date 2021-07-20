@@ -217,9 +217,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(author__id=author_id)
 
         if tags is not None:
-            query = Q()
-            [query.add(Q(tags__slug=tag), Q.OR) for tag in tags]
-            queryset = queryset.filter(query)
+            # query = Q()
+            # [query.add(Q(tags__slug=tag), Q.OR) for tag in tags]
+            # print(query)
+            queryset = queryset.filter(tags__slug__in=tags).distinct()
 
         if is_favorited is True:
             favorited = list(self.request.user.follower_recipe.values_list('recipe', flat=True))
