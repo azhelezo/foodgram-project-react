@@ -1,10 +1,11 @@
+from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from recipes.models import FavoriteRecipe, IngredientAmount, ShoppingRecipe, Tag, Recipe, Ingredient
-from django.contrib.auth import get_user_model
-from drf_extra_fields.fields import Base64ImageField
 
+from recipes.models import (FavoriteRecipe, Ingredient, IngredientAmount,
+                            Recipe, ShoppingRecipe, Tag)
 from users.models import FollowUser
 
 User = get_user_model()
@@ -16,7 +17,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'first_name', 'last_name', 'id', 'password', )
+        fields = '__all__'
 
 
 class CustomUserSerializer(UserSerializer):

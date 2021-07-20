@@ -1,20 +1,23 @@
-from django.http.response import HttpResponse
-from rest_framework.decorators import action
-from django.db.models import Value as V
 from django.db.models import Sum
+from django.db.models import Value as V
 from django.db.models.functions import StrIndex
 from django.db.models.functions.text import Lower
-from django.db.models.query_utils import Q
-from django.shortcuts import get_object_or_404
+from django.http.response import HttpResponse
+from djoser.views import UserViewSet
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+
 from api.permissions import IsAdminOrAuthorOrReadOnly
-from recipes.models import FavoriteRecipe, ShoppingRecipe, Tag, Recipe, Ingredient
-from api.serializers import (CustomUserSerializer, FavoriteRecipeSerializer, FollowUserCreateSerializer,
-                             FollowUserSerializer, RecipeShortSerializer, RecipeSerializer, ShoppingRecipeSerializer,
-                             TagSerializer, IngredientSerializer, RecipeCreateUpdateSerializer)
-from djoser.views import UserViewSet
+from api.serializers import (CustomUserSerializer, FavoriteRecipeSerializer,
+                             FollowUserCreateSerializer, FollowUserSerializer,
+                             IngredientSerializer,
+                             RecipeCreateUpdateSerializer, RecipeSerializer,
+                             RecipeShortSerializer, ShoppingRecipeSerializer,
+                             TagSerializer)
+from recipes.models import (FavoriteRecipe, Ingredient, Recipe, ShoppingRecipe,
+                            Tag)
 from users.models import FollowUser, User
 
 
@@ -114,6 +117,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'shopping_cart', 'favorite', 'download_shopping_cart']:
             return [IsAuthenticated()]
         elif self.action in ['update', 'delete']:
+            print('here')
             return [IsAdminOrAuthorOrReadOnly()]
         return [AllowAny()]
 
@@ -216,10 +220,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if author_id is not None:
             queryset = queryset.filter(author__id=author_id)
 
-        if tags is not None:
-            # query = Q()
-            # [query.add(Q(tags__slug=tag), Q.OR) for tag in tags]
-            # print(query)
+        if len(tags) > 0:
             queryset = queryset.filter(tags__slug__in=tags).distinct()
 
         if is_favorited is True:
@@ -243,7 +244,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(data=data, status=status.HTTP_201_CREATED)
 
     def update(self, request, **kwargs):
-        instance = get_object_or_404(Recipe, pk=kwargs.get('id'))
+        instance = self.get_object()
         data = request.data
         data.update({'author': request.user.pk})
         serializer = self.get_serializer(instance=instance, data=data, partial=False)
