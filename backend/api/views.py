@@ -169,24 +169,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def download_shopping_cart(self, request, *args, **kwargs):
         ingredients = Recipe.objects.filter(
-            shopping_recipe__user=2
+            shopping_recipe__user=request.user
         ).order_by('ingredients__name').values(
             'ingredients__name', 'ingredients__measurement_unit'
         ).annotate(total_amount=Sum('ingredient_amounts__amount'))
 
-        file_data = ""
+        response = HttpResponse(
+            headers={
+                'Content-Type': 'text/plain',
+                'Content-Disposition': 'attachment'
+            }
+        )
 
         for item in ingredients:
             name = item.get('ingredients__name').capitalize()
             amount = item.get('total_amount')
             unit = item.get('ingredients__measurement_unit')
             line = f'{name} - {amount} {unit}'
-            file_data += line + '\n'
+            response.write(line + '\n')
 
-        response = HttpResponse(
-            file_data, content_type='text/plain'
-        )
-        response['Content-Disposition'] = 'attachment; filename="list.txt"'
         return response
 
     def list(self, request, *args, **kwargs):
