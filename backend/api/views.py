@@ -235,7 +235,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        data.update({'author': request.user.pk, 'text': self.request.build_absolute_uri()})
+        data.update({'author': request.user.pk})
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save(serializer.validated_data)
