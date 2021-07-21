@@ -1,5 +1,6 @@
 from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 
 User = get_user_model()
@@ -28,6 +29,10 @@ class IngredientAmount(models.Model):
     )
     amount = models.PositiveSmallIntegerField('Количество')
 
+    class Meta:
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количества ингредиентов'
+    
     def __str__(self):
         return self.ingredient.name
 
@@ -56,7 +61,7 @@ class Recipe(models.Model):
         Ingredient, through=IngredientAmount, related_name='recipes', verbose_name='Список ингредиентов'
     )
     tags = models.ManyToManyField(Tag, related_name='recipes', verbose_name='Тэги')
-    cooking_time = models.PositiveSmallIntegerField('Время приготовления')
+    cooking_time = models.PositiveSmallIntegerField('Время приготовления', validators=[MinValueValidator(1)])
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
@@ -78,6 +83,8 @@ class FavoriteRecipe(models.Model):
                 fields=['user', 'recipe'], name='favorite_unique'
             )
         ]
+        verbose_name = 'Рецепт в избранном'
+        verbose_name_plural = 'Рецепты в избранном'
 
     def __str__(self):
         return f'{self.user} follows recipe {self.recipe}'
@@ -93,6 +100,8 @@ class ShoppingRecipe(models.Model):
                 fields=['user', 'recipe'], name='shopping_unique'
             )
         ]
+        verbose_name = 'Рецепт в списке покупок'
+        verbose_name_plural = 'Рецепты в списке покупок'
 
     def __str__(self):
         return f'{self.user} shopping for recipe {self.recipe}'

@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientAmount,
@@ -17,7 +18,14 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ('email', 'username', 'first_name', 'last_name', 'id', 'password', )
+
+
+class CustomUserCreatedSerializer(CustomUserCreateSerializer):
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'first_name', 'last_name', 'id', )
 
 
 class CustomUserSerializer(UserSerializer):
@@ -90,6 +98,9 @@ class RecipeCreateUpdateSerializer(RecipeSerializer):
 
     def save(self, validated_data):
         ingredients = validated_data.pop('ingredients')
+        ingredients = [_ for _ in ingredients if _['amount'] > 0]
+        if len(ingredients) < 1:
+            raise ValidationError({'ingredients': 'At least one ingredient amount must be > 0'})
         instance = super().save()
         IngredientAmount.objects.filter(recipe=instance).delete()
         for ing in ingredients:

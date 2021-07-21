@@ -10,7 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from api.permissions import IsAdminOrAuthorOrReadOnly
-from api.serializers import (CustomUserSerializer, FavoriteRecipeSerializer,
+from api.serializers import (CustomUserCreateSerializer, CustomUserCreatedSerializer, CustomUserSerializer, FavoriteRecipeSerializer,
                              FollowUserCreateSerializer, FollowUserSerializer,
                              IngredientSerializer,
                              RecipeCreateUpdateSerializer, RecipeSerializer,
@@ -26,6 +26,13 @@ class CustomUserViewSet(UserViewSet):
     subscriptions_serializer_class = FollowUserSerializer
     queryset = User.objects.all().order_by('id')
     lookup_field = 'id'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        user = CustomUserCreatedSerializer(instance=serializer.data)
+        return Response(user.data, status=status.HTTP_201_CREATED)
 
     def get_permissions(self):
         if self.action in ['retrieve', 'subscriptions']:
@@ -116,8 +123,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['create', 'shopping_cart', 'favorite', 'download_shopping_cart']:
             return [IsAuthenticated()]
-        elif self.action in ['update', 'delete']:
-            print('here')
+        elif self.action in ['update', 'destroy']:
             return [IsAdminOrAuthorOrReadOnly()]
         return [AllowAny()]
 
