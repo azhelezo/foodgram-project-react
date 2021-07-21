@@ -246,7 +246,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def update(self, request, **kwargs):
         instance = self.get_object()
         data = request.data
-        data.update({'author': request.user.pk})
         serializer = self.get_serializer(instance=instance, data=data, partial=False)
         serializer.is_valid(raise_exception=True)
         serializer.save(serializer.validated_data)
