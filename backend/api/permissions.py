@@ -13,7 +13,6 @@ class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
             request.method in ['PUT', 'DELETE']
                 and not request.user.is_anonymous
             ):
-            print('ANON', request.user.is_anonymous)
             return (
                 request.user == obj.author
                 or request.user.is_superuser
