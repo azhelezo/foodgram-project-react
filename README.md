@@ -1,7 +1,3 @@
-http://178.154.206.202/
-admin
-admin
-
 # Foodgram
 #### API для проекта "Продуктовый помощник"
 ## Описание
@@ -90,5 +86,6 @@ docker-compose up
 #### Загрузка заготовленных данных:
 В репозиторий включен набор тестовых данных, которые можно загрузить в БД:
 ```bash
+- docker exec --it infra_backend_1 bash
 - python api/manage.py loaddata fixtures.json
 ```
